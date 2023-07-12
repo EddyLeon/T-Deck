@@ -570,6 +570,7 @@ void disp_inver_event(lv_event_t *e)
 {
     if (lv_event_get_code(e) != LV_EVENT_CLICKED)return;
     uint8_t *index =  (uint8_t *) lv_event_get_user_data(e);
+    Serial.println(*index);
     if (!index)return;
     switch (*index) {
     case 0:
