@@ -7,22 +7,27 @@
 /////////////////////////////////////////////////////////////////
 #include "ESP32Berry_System.hpp"
 
-static System* instance = NULL;
+static System *instance = NULL;
 
-void systemTask(void* pvParameters) {
-  while (1) {
+void systemTask(void *pvParameters)
+{
+  while (1)
+  {
     instance->update_local_time();
     instance->read_battery();
     vTaskDelay(SYSTEM_UPDATE_INTERVAL);
   }
 }
 
-void taskPlayAudio(void* pvParameters) {
-  if (SD.exists((char*)pvParameters)) {
+void taskPlayAudio(void *pvParameters)
+{
+  if (SD.exists((char *)pvParameters))
+  {
     instance->audio->setPinout(BOARD_I2S_BCK, BOARD_I2S_WS, BOARD_I2S_DOUT);
     instance->audio->setVolume(21);
-    instance->audio->connecttoFS(SD, (char*)pvParameters);
-    while (instance->audio->isRunning()) {
+    instance->audio->connecttoFS(SD, (char *)pvParameters);
+    while (instance->audio->isRunning())
+    {
       instance->audio->loop();
     }
     instance->audio->stopSong();
@@ -30,7 +35,8 @@ void taskPlayAudio(void* pvParameters) {
   vTaskDelete(NULL);
 }
 
-System::System(FuncPtrString callback) {
+System::System(FuncPtrString callback)
+{
   instance = this;
   requestedTimeUpdate = false;
   system_event_cb = callback;
@@ -40,43 +46,50 @@ System::System(FuncPtrString callback) {
 
 System::~System() {}
 
-void System::init() {
+void System::init()
+{
   initADCBAT();
   audio = new Audio();
   isSDCard = initSDCard();
   play_audio(AUDIO_BOOT);
 }
 
-void System::initADCBAT() {
+void System::initADCBAT()
+{
   esp_adc_cal_characteristics_t adc_chars;
   esp_adc_cal_value_t val_type = esp_adc_cal_characterize(
-    ADC_UNIT_1,
-    ADC_ATTEN_DB_11,
-    ADC_WIDTH_BIT_12,
-    1100,
-    &adc_chars);
+      ADC_UNIT_1,
+      ADC_ATTEN_DB_11,
+      ADC_WIDTH_BIT_12,
+      1100,
+      &adc_chars);
 
-  if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
+  if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
+  {
     vRef = adc_chars.vref;
-  } else {
+  }
+  else
+  {
     vRef = 1100;
   }
 }
 
-void System::setConfigTzTime() {
+void System::setConfigTzTime()
+{
 
-  const char* ntpServer0 = "time1.google.com";
-  const char* ntpServer1 = "pool.ntp.org";
-  const char* ntpServer2 = "time.nist.gov";
+  const char *ntpServer0 = "time1.google.com";
+  const char *ntpServer1 = "pool.ntp.org";
+  const char *ntpServer2 = "time.nist.gov";
 
   esp_netif_init();
-  if (sntp_enabled()) {
+  if (sntp_enabled())
+  {
     sntp_stop();
   }
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
-  sntp_setservername(0, (char*)ntpServer0);
-  sntp_setservername(1, (char*)ntpServer1);
-  sntp_setservername(2, (char*)ntpServer2);
+  sntp_setservername(0, (char *)ntpServer0);
+  sntp_setservername(1, (char *)ntpServer1);
+  sntp_setservername(2, (char *)ntpServer2);
   sntp_init();
   setenv("TZ", TIME_ZONE, 1);
   tzset();
@@ -84,54 +97,66 @@ void System::setConfigTzTime() {
   update_local_time();
 }
 
-void System::update_local_time() {
+void System::update_local_time()
+{
 
-  if (!requestedTimeUpdate) return;
+  if (!requestedTimeUpdate)
+    return;
 
   struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
+  if (!getLocalTime(&timeinfo))
+  {
     return;
   }
 
   system_event_cb(SYS_TIME, &timeinfo);
 }
 
-bool System::initSDCard() {
+bool System::initSDCard()
+{
   digitalWrite(BOARD_SDCARD_CS, HIGH);
-  if (!SD.begin(BOARD_SDCARD_CS, SPI, 800000U)) {
+  if (!SD.begin(BOARD_SDCARD_CS, SPI, 800000U))
+  {
     return false;
   }
 
   uint8_t cardType = SD.cardType();
-  if (cardType == CARD_NONE) {
+  if (cardType == CARD_NONE)
+  {
     return false;
   }
   return true;
 }
 
-void System::saveNetworkConfig(String ssid, String pwd) {
-  instance->writeFile(WIFI_SSID_FILE, ssid.c_str());
-  instance->writeFile(WIFI_PWD_FILE, pwd.c_str());
+void System::saveNetworkConfig(char *wifiConfig)
+{
+  instance->writeFile(WIFI_CONFIG_FILE, wifiConfig);
 }
 
-void System::play_audio(const char* filename) {
-  if (!isSDCard) return;
-  xTaskCreate(taskPlayAudio, "play", 1024 * 6, (void*)filename, 2, &audioTaskHandler);
+void System::play_audio(const char *filename)
+{
+  if (!isSDCard)
+    return;
+  xTaskCreate(taskPlayAudio, "play", 1024 * 6, (void *)filename, 2, &audioTaskHandler);
 }
 
-std::vector<String> System::listDir(const char* dirname) {
+std::vector<String> System::listDir(const char *dirname)
+{
   std::vector<String> fileList;
 
   File root = storage.open(dirname);
-  if (!root) {
+  if (!root)
+  {
     return fileList;
   }
-  if (!root.isDirectory()) {
+  if (!root.isDirectory())
+  {
     return fileList;
   }
 
   File file = root.openNextFile();
-  while (file) {
+  while (file)
+  {
     char fileInfo[128];
     snprintf(fileInfo, sizeof(fileInfo), "%s (%d bytes)", file.name(), file.size());
     fileList.push_back(String(fileInfo));
@@ -141,25 +166,38 @@ std::vector<String> System::listDir(const char* dirname) {
   return fileList;
 }
 
-bool System::createDir(const char* path) {
-  if (storage.exists(path)) {
+bool System::wifiConfigExist()
+{
+  return storage.exists(WIFI_CONFIG_FILE);
+}
+
+bool System::createDir(const char *path)
+{
+  if (storage.exists(path))
+  {
     return true;
   }
 
-  if (storage.mkdir(path)) {
+  if (storage.mkdir(path))
+  {
     return true;
-  } else {
+  }
+  else
+  {
     return false;
   }
 }
 
-bool System::writeFile(const char* path, const char* message) {
+bool System::writeFile(const char *path, const char *message)
+{
   File file = storage.open(path, FILE_WRITE);
-  if (!file) {
+  if (!file)
+  {
     file.close();
     return false;
   }
-  if (!file.print(message)) {
+  if (!file.print(message))
+  {
     file.close();
     return false;
   }
@@ -167,15 +205,18 @@ bool System::writeFile(const char* path, const char* message) {
   return true;
 }
 
-String System::readFile(const char* path) {
+String System::readFile(const char *path)
+{
   File file = storage.open(path, FILE_READ);
-  if (!file) {
+  if (!file)
+  {
     Serial.println("File not found!");
     file.close();
     return "";
   }
   String temp = "";
-  while (file.available()) {
+  while (file.available())
+  {
     temp += file.readStringUntil('\n');
   }
 
@@ -183,14 +224,17 @@ String System::readFile(const char* path) {
   return temp;
 }
 
-void System::read_battery() {
+void System::read_battery()
+{
   uint16_t v = analogRead(BOARD_BAT_ADC);
   double vBat = ((float)v / 4095.0) * 2.0 * 3.3 * (vRef / 1000.0);
-  if (vBat > BAT_MAX_VOLT) {
+  if (vBat > BAT_MAX_VOLT)
+  {
     vBat = BAT_MAX_VOLT;
   }
   int batPercent = map(vBat * 100, 320, 420, 0, 100);
-  if (batPercent < 0) {
+  if (batPercent < 0)
+  {
     batPercent = 0;
   }
 

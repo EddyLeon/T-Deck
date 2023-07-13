@@ -25,8 +25,7 @@ https://github.com/lvgl/lvgl
 // Set User Name For Display
 #define USER_NAME "Eddy Leon" 
 
-#define WIFI_SSID_FILE "/ssid.txt"
-#define WIFI_PWD_FILE "/pwd.txt"
+#define WIFI_CONFIG_FILE "/wifi.config"
 #define WIFI_SCAN_ITER 5
 #define WIFI_SSID_PW_DELIMITER "^_"
 #define WIFI_CONNECT_TIMEOUT 10 * 1000

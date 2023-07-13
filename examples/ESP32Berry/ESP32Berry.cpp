@@ -32,6 +32,7 @@ void displayEventHandler(Menu_Event_t event, void *param)
     else
     {
       instance->network->WiFiCommend(NETWORK_CONNECTING, param);
+      instance->system->saveNetworkConfig((char *)param);
     }
     break;
 
@@ -61,7 +62,6 @@ void networkResponse(Network_Event_t event, void *data1, void *data2)
     instance->display->show_loading_popup(false);
     instance->display->set_notification("[WiFi] Connected!");
     instance->display->update_WiFi_label(data1);
-    instance->system->saveNetworkConfig(instance->network->_ssid, instance->network->_pwd);
     break;
 
   case NETWORK_CONNECT_FAILURE:
@@ -98,6 +98,8 @@ void ESP32Berry::begin()
   void (*sptr)(System_Event_t, void *) = &systemInfo;
   system = new System(systemInfo);
 
-  String ssid = instance->system->readFile(WIFI_SSID_FILE);
-  String pwd = instance->system->readFile(WIFI_PWD_FILE);
+  if (instance->system->wifiConfigExist())
+  {
+    instance->network->WiFiCommend(NETWORK_CONNECTING, (void *)instance->system->readFile(WIFI_CONFIG_FILE).c_str());
+  }
 }
