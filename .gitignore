@@ -2,4 +2,4 @@
 .vscode
 build
 script
-
+.DS_Store
