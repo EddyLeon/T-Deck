@@ -248,11 +248,10 @@ bool System::deleteFile(const char *path)
   if (storage.remove(path))
   {
     Serial.printf("File %s deleted successfully.\n", path);
+    return true;
   }
-  else
-  {
-    Serial.printf("Failed to delete file %s.\n", path);
-  }
+  Serial.printf("Failed to delete file %s.\n", path);
+  return false;
 }
 
 void System::read_battery()
