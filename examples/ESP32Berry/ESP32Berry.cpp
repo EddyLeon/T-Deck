@@ -37,10 +37,15 @@ void displayEventHandler(Menu_Event_t event, void *param)
 
   case APP:
     int menuNum = std::stoi((char *)param);
+    Serial.print("App Num: ");
+    Serial.println(menuNum);
     switch (menuNum)
     {
     case 0:
       instance->appChatGPT = new AppChatGPT(instance->display, instance->system, instance->network, "ChatGPT Client");
+      break;
+    case 1:
+      instance->appFileManager = new AppFileManager(instance->display, instance->system, instance->network, "File Manager");
       break;
     }
 
@@ -62,6 +67,7 @@ void networkResponse(Network_Event_t event, void *data1, void *data2)
     instance->display->set_notification("[WiFi] Connected!");
     instance->display->update_WiFi_label(data1);
     instance->system->saveNetworkConfig(instance->network->_ssid, instance->network->_pwd);
+    instance->network->UpdateData();
     break;
 
   case NETWORK_CONNECT_FAILURE:
@@ -100,4 +106,12 @@ void ESP32Berry::begin()
 
   String ssid = instance->system->readFile(WIFI_SSID_FILE);
   String pwd = instance->system->readFile(WIFI_PWD_FILE);
+
+  if (ssid.length() > 0 && pwd.length() > 0)
+  {
+    delay(2000);
+    instance->network->_ssid = ssid;
+    instance->network->_pwd = pwd;
+    instance->network->WiFiConnector();
+  }
 }

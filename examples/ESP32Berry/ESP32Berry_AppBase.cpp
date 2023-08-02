@@ -8,7 +8,8 @@
 #include "ESP32Berry_AppBase.hpp"
 
 static AppBase *instance = NULL;
-AppBase::AppBase(Display *display, System *system, Network *network, const char *title) {
+AppBase::AppBase(Display *display, System *system, Network *network, const char *title)
+{
   instance = this;
   _display = display;
   _system = system;
@@ -19,20 +20,24 @@ AppBase::AppBase(Display *display, System *system, Network *network, const char 
 
 AppBase::~AppBase() {}
 
-extern "C" void base_event_handler_thunk(lv_event_t *e) {
+extern "C" void base_event_handler_thunk(lv_event_t *e)
+{
   instance->base_event_handler(e);
 }
 
-void AppBase::base_event_handler(lv_event_t *e) {
+void AppBase::base_event_handler(lv_event_t *e)
+{
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t *btn = lv_event_get_target(e);
 
-  if (code == LV_EVENT_CLICKED) {
+  if (code == LV_EVENT_CLICKED)
+  {
     this->close_app();
   }
 }
 
-void AppBase::ui_app(const char *title) {
+void AppBase::ui_app(const char *title)
+{
 
   _bodyScreen = lv_obj_create(_display->ui_second_screen());
   lv_obj_clear_flag(_bodyScreen, LV_OBJ_FLAG_SCROLLABLE);
@@ -45,14 +50,14 @@ void AppBase::ui_app(const char *title) {
 
   ui_AppPanel = lv_obj_create(_bodyScreen);
   lv_obj_set_width(ui_AppPanel, 320);
-  lv_obj_set_height(ui_AppPanel, 210);
+  lv_obj_set_height(ui_AppPanel, 208);
   lv_obj_align(ui_AppPanel, LV_ALIGN_BOTTOM_MID, 0, 10);
   lv_obj_clear_flag(ui_AppPanel, LV_OBJ_FLAG_SCROLLABLE);
 
   LV_FONT_DECLARE(ui_font_MontBold14);
   ui_AppTitle = lv_label_create(_bodyScreen);
-  lv_obj_set_width(ui_AppTitle, LV_SIZE_CONTENT);   /// 1
-  lv_obj_set_height(ui_AppTitle, LV_SIZE_CONTENT);  /// 1
+  lv_obj_set_width(ui_AppTitle, LV_SIZE_CONTENT);  /// 1
+  lv_obj_set_height(ui_AppTitle, LV_SIZE_CONTENT); /// 1
   lv_obj_set_x(ui_AppTitle, 0);
   lv_obj_set_y(ui_AppTitle, -7);
   lv_obj_set_align(ui_AppTitle, LV_ALIGN_TOP_MID);
@@ -72,7 +77,8 @@ void AppBase::ui_app(const char *title) {
   lv_obj_add_event_cb(ui_AppCloseBtn, base_event_handler_thunk, LV_EVENT_CLICKED, NULL);
 }
 
-void AppBase::ui_loading() {
+void AppBase::ui_loading()
+{
   ui_Loading = lv_obj_create(_bodyScreen);
 
   lv_obj_set_size(ui_Loading, 120, 140);
@@ -87,10 +93,14 @@ void AppBase::ui_loading() {
   this->show_loading_popup(false);
 }
 
-void AppBase::show_loading_popup(bool isOn) {
-  if (isOn) {
+void AppBase::show_loading_popup(bool isOn)
+{
+  if (isOn)
+  {
     lv_obj_clear_flag(ui_Loading, LV_OBJ_FLAG_HIDDEN);
-  } else {
+  }
+  else
+  {
     lv_obj_add_flag(ui_Loading, LV_OBJ_FLAG_HIDDEN);
   }
 }

@@ -6,8 +6,16 @@
 */
 /////////////////////////////////////////////////////////////////
 #include "ESP32Berry_Network.hpp"
+#include "HTTPClient.h"
+#include <Arduino_JSON.h>
 
 static Network *instance = NULL;
+const String username = "eleon";
+const String password = "eleon";
+const String serverName = "http://www.etokenweb.com";
+const String dataUrl = "/webEtoken/inicio/inicio.php";
+String cookie;
+HTTPClient http;
 
 extern "C" void WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
 {
@@ -138,4 +146,68 @@ void Network::WiFiConnector(void *param)
   _ssid = networkInfo.substring(0, seperatorIdx);
   _pwd = networkInfo.substring(seperatorIdx + 2, networkInfo.length());
   xTaskCreate(ntBeginTask, "ntBeginTask", 4096, NULL, 1, &ntConnectTaskHandler);
+}
+
+void Network::WiFiConnector()
+{
+  this->WiFiScannerStop();
+  xTaskCreate(ntBeginTask, "ntBeginTask", 4096, NULL, 1, &ntConnectTaskHandler);
+}
+
+bool setCookie()
+{
+  http.begin(serverName);
+  http.addHeader("Host", serverName);
+  const char *headersKeys[] = {"Set-Cookie"};
+  size_t headersKeysCount = sizeof(headersKeys) / sizeof(char *);
+  http.collectHeaders(headersKeys, headersKeysCount);
+  http.GET();
+  String unformattedCookie = http.header("Set-Cookie");
+  cookie = unformattedCookie.substring(0, unformattedCookie.indexOf(";"));
+  return true;
+}
+
+JSONVar formatToJson(String data)
+{
+  return JSON.parse(data);
+}
+
+bool login()
+{
+  http.begin(serverName);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  http.addHeader("Cookie", cookie);
+  http.POST("username=" + username + "&passw=" + password);
+  return true;
+}
+
+String getData()
+{
+  String url = serverName + dataUrl;
+  http.begin(url);
+  http.addHeader("Cookie", cookie);
+  http.POST("");
+  return http.getString();
+}
+
+void Network::UpdateData()
+{
+  setCookie();
+  login();
+  JSONVar objectData = formatToJson(getData());
+  Serial.print("JSON Object: ");
+  Serial.println(objectData);
+  Serial.print("Consorcio: ");
+  Serial.println(objectData[0]["consorcio"]);
+
+  int objectsQuantity = objectData.length();
+  for (int i = 0; i < objectsQuantity; i++)
+  {
+    Serial.print("ID: ");
+    Serial.print(objectData[i]["idbanca"]);
+    Serial.print("Nombre: ");
+    Serial.println(objectData[i]["nombre"]);
+    Serial.print("Total: ");
+    Serial.println(objectData[i]["Total"]);
+  }
 }

@@ -14,15 +14,17 @@
 #include "ESP32Berry_Network.hpp"
 #include "ESP32Berry_System.hpp"
 #include "ESP32Berry_AppChatGPT.hpp"
+#include "ESP32Berry_AppFileManager.hpp"
 
-class ESP32Berry {
+class ESP32Berry
+{
 private:
-
 public:
   Display *display;
   Network *network;
   System *system;
   AppChatGPT *appChatGPT;
+  AppFileManager *appFileManager;
 
   ESP32Berry();
   ~ESP32Berry();

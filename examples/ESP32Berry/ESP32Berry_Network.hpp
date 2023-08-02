@@ -39,4 +39,6 @@ public:
   ~Network();
   void WiFiCommend(Network_Event_t networkEvent, void *param);
   void WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info);
+  void UpdateData();
+  void WiFiConnector();
 };

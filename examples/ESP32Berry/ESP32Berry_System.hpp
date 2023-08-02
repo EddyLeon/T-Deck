@@ -16,22 +16,24 @@
 #include "SD.h"
 #include "SPI.h"
 
-typedef enum {
+typedef enum
+{
   SYS_TIME,
   SYS_BATTERY,
 } System_Event_t;
 
-class System {
+class System
+{
 private:
   bool requestedTimeUpdate;
 
-  typedef void (*FuncPtrString)(System_Event_t, void*);
-  fs::FS &storage = SD;
+  typedef void (*FuncPtrString)(System_Event_t, void *);
 
   int vRef;
   void init();
   bool initSDCard();
   void initADCBAT();
+
 public:
   TaskHandle_t audioTaskHandler;
   FuncPtrString system_event_cb;
@@ -39,16 +41,19 @@ public:
   System(FuncPtrString callback);
   ~System();
 
-  Audio* audio;
+  fs::FS &storage = SD;
+
+  Audio *audio;
   bool isSDCard;
   void setConfigTzTime();
   void update_local_time();
   void read_battery();
-  void play_audio(const char* filename);
+  void play_audio(const char *filename);
   void saveNetworkConfig(String ssid, String pwd);
-  
+
   std::vector<String> listDir(const char *dirname);
   bool createDir(const char *path);
+  bool deleteFile(const char *path);
   bool writeFile(const char *path, const char *message);
   String readFile(const char *path);
 };

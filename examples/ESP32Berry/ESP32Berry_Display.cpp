@@ -213,6 +213,10 @@ void Display::ui_app_btns_callback(lv_event_t *e)
       lv_scr_load_anim(ui_Sub_Screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
       menu_event_cb(APP, lv_label_get_text(label));
       break;
+    case 1:
+      lv_scr_load_anim(ui_Sub_Screen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
+      menu_event_cb(APP, lv_label_get_text(label));
+      break;
     default:
       break;
     }
@@ -447,7 +451,7 @@ void Display::ui_main()
   lv_obj_set_x(ui_TimeLabel, 0);
   lv_obj_set_y(ui_TimeLabel, 10);
   lv_obj_set_align(ui_TimeLabel, LV_ALIGN_BOTTOM_MID);
-  lv_label_set_text(ui_TimeLabel, "ESP32Berry");
+  lv_label_set_text(ui_TimeLabel, "1:00 PM");
   lv_obj_set_style_text_color(ui_TimeLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_opa(ui_TimeLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_font(ui_TimeLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -500,7 +504,7 @@ void Display::ui_main()
   lv_obj_set_x(ui_NotiLabel, 0);
   lv_obj_set_y(ui_NotiLabel, 4);
   lv_obj_set_align(ui_NotiLabel, LV_ALIGN_TOP_RIGHT);
-  lv_label_set_text(ui_NotiLabel, "...");
+  lv_label_set_text(ui_NotiLabel, "");
   lv_obj_set_style_text_color(ui_NotiLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_opa(ui_NotiLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_text_font(ui_NotiLabel, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -676,6 +680,7 @@ void Display::ui_main()
   lv_obj_set_style_text_font(ui_Label2, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
   ui_ImgBtnWiFi = lv_imgbtn_create(ui_PanelWifi);
+  ui_ImgBtnWiFi->state = 2;
   lv_imgbtn_set_src(ui_ImgBtnWiFi, LV_IMGBTN_STATE_RELEASED, NULL, &icon_wifi, NULL);
   lv_imgbtn_set_src(ui_ImgBtnWiFi, LV_IMGBTN_STATE_PRESSED, NULL, &icon_wifi, NULL);
   lv_imgbtn_set_src(ui_ImgBtnWiFi, LV_IMGBTN_STATE_DISABLED, NULL, &icon_wifi, NULL);
@@ -771,53 +776,6 @@ void Display::ui_WiFi_page()
 
   lv_obj_add_flag(ui_WiFiMBox, LV_OBJ_FLAG_HIDDEN);
 }
-
-// void Display::ui_prep_popup_box() {
-
-//   ui_BasePopup = lv_obj_create(lv_scr_act());
-//   lv_obj_set_height(ui_BasePopup, 170);
-//   lv_obj_set_width(ui_BasePopup, lv_pct(93));
-//   lv_obj_set_align(ui_BasePopup, LV_ALIGN_CENTER);
-//   lv_obj_clear_flag(ui_BasePopup, LV_OBJ_FLAG_SCROLLABLE);
-//   lv_obj_set_style_bg_color(ui_BasePopup, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_bg_opa(ui_BasePopup, 196, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-//   ui_BasePopupTitle = lv_label_create(ui_BasePopup);
-//   lv_obj_set_width(ui_BasePopupTitle, LV_SIZE_CONTENT);
-//   lv_obj_set_height(ui_BasePopupTitle, LV_SIZE_CONTENT);
-//   lv_label_set_text(ui_BasePopupTitle, "");
-//   lv_obj_set_style_text_color(ui_BasePopupTitle, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_text_opa(ui_BasePopupTitle, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_text_font(ui_BasePopupTitle, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-//   ui_BasePopupMsg = lv_label_create(ui_BasePopup);
-//   lv_obj_set_width(ui_BasePopupMsg, 270);
-//   lv_obj_set_height(ui_BasePopupMsg, 110);
-//   lv_obj_set_x(ui_BasePopupMsg, 0);
-//   lv_obj_set_y(ui_BasePopupMsg, 30);
-//   lv_label_set_text(ui_BasePopupMsg, "");
-//   lv_obj_set_style_text_color(ui_BasePopupMsg, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_text_opa(ui_BasePopupMsg, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_text_font(ui_BasePopupMsg, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-//   ui_BasePopupCloseBtn = lv_btn_create(ui_BasePopup);
-//   lv_obj_set_width(ui_BasePopupCloseBtn, 50);
-//   lv_obj_set_height(ui_BasePopupCloseBtn, 34);
-//   lv_obj_set_align(ui_BasePopupCloseBtn, LV_ALIGN_BOTTOM_RIGHT);
-//   lv_obj_add_flag(ui_BasePopupCloseBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-//   lv_obj_clear_flag(ui_BasePopupCloseBtn, LV_OBJ_FLAG_SCROLLABLE);
-//   lv_obj_set_style_shadow_width(ui_BasePopupCloseBtn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_shadow_spread(ui_BasePopupCloseBtn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_shadow_ofs_x(ui_BasePopupCloseBtn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_set_style_shadow_ofs_y(ui_BasePopupCloseBtn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-//   lv_obj_add_event_cb(ui_BasePopupCloseBtn, ui_event_callback_thunk, LV_EVENT_CLICKED, NULL);
-
-//   lv_obj_t *ui_BaseOkBtnLabel = lv_label_create(ui_BasePopupCloseBtn);
-//   lv_obj_set_width(ui_BaseOkBtnLabel, LV_SIZE_CONTENT);
-//   lv_obj_set_height(ui_BaseOkBtnLabel, LV_SIZE_CONTENT);
-//   lv_obj_set_align(ui_BaseOkBtnLabel, LV_ALIGN_CENTER);
-//   lv_label_set_text(ui_BaseOkBtnLabel, "OK");
-// }
 
 void Display::ui_popup_open(String title, String msg)
 {

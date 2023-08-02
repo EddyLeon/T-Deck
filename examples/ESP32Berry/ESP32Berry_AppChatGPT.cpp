@@ -10,7 +10,8 @@
 static AppChatGPT *instance = NULL;
 
 AppChatGPT::AppChatGPT(Display *display, System *system, Network *network, const char *title)
-  : AppBase(display, system, network, title) {
+    : AppBase(display, system, network, title)
+{
   instance = this;
   display_width = display->get_display_width();
   client.setInsecure();
@@ -20,25 +21,31 @@ AppChatGPT::AppChatGPT(Display *display, System *system, Network *network, const
 
 AppChatGPT::~AppChatGPT() {}
 
-extern "C" void tg_textarea_event_cb_thunk(lv_event_t *e) {
+extern "C" void fm_textarea_event_cb_thunk(lv_event_t *e)
+{
   instance->_display->textarea_event_cb(e);
 }
 
-extern "C" void tg_event_handler_thunk(lv_event_t *e) {
-  instance->tg_event_handler(e);
+extern "C" void fm_event_handler_thunk(lv_event_t *e)
+{
+  instance->fm_event_handler(e);
 }
 
-void chatGPTtask(void *pvParameters) {
+void chatGPTtask(void *pvParameters)
+{
   instance->show_loading_popup(true);
   std::string str = std::string((char *)pvParameters);
   instance->clean_input_field();
 
   String result;
   Serial.println("[ChatGPT] Only print a content message");
-  if (instance->chat_gpt->simple_message("gpt-3.5-turbo-16k-0613", "user", str.c_str(), result)) {
+  if (instance->chat_gpt->simple_message("gpt-3.5-turbo-16k-0613", "user", str.c_str(), result))
+  {
     Serial.println("===OK===");
     Serial.println(result);
-  } else {
+  }
+  else
+  {
     Serial.println("===ERROR===");
     Serial.println(result);
   }
@@ -50,16 +57,19 @@ void chatGPTtask(void *pvParameters) {
   vTaskDelete(NULL);
 }
 
-
-void AppChatGPT::tg_event_handler(lv_event_t *e) {
+void AppChatGPT::fm_event_handler(lv_event_t *e)
+{
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t *obj = lv_event_get_target(e);
 
-  if (code == LV_EVENT_CLICKED) {
-    if (obj == sendBtn) {
+  if (code == LV_EVENT_CLICKED)
+  {
+    if (obj == sendBtn)
+    {
       String myMsg = String(lv_textarea_get_text(textField));
       myMsg.trim();
-      if (myMsg.length() > 0) {
+      if (myMsg.length() > 0)
+      {
         this->add_msg(true, myMsg);
         xTaskCreate(chatGPTtask, "chatGPTtask", 10000, (void *)lv_textarea_get_text(textField), 1, NULL);
       }
@@ -67,7 +77,8 @@ void AppChatGPT::tg_event_handler(lv_event_t *e) {
   }
 }
 
-void AppChatGPT::draw_ui() {
+void AppChatGPT::draw_ui()
+{
   lv_style_init(&msgStyle);
   lv_style_set_bg_color(&msgStyle, lv_color_white());
   lv_style_set_pad_ver(&msgStyle, 8);
@@ -86,8 +97,8 @@ void AppChatGPT::draw_ui() {
   lv_obj_set_size(textField, display_width * 2 / 3 - 10, 38);
   lv_obj_align(textField, LV_ALIGN_LEFT_MID, 10, 0);
   lv_textarea_set_placeholder_text(textField, "typing?");
-  lv_obj_add_event_cb(textField, tg_textarea_event_cb_thunk, LV_EVENT_FOCUSED, NULL);
-  lv_obj_add_event_cb(textField, tg_textarea_event_cb_thunk, LV_EVENT_DEFOCUSED, NULL);
+  lv_obj_add_event_cb(textField, fm_textarea_event_cb_thunk, LV_EVENT_FOCUSED, NULL);
+  lv_obj_add_event_cb(textField, fm_textarea_event_cb_thunk, LV_EVENT_DEFOCUSED, NULL);
 
   sendBtn = lv_btn_create(bottomPart);
   lv_obj_set_size(sendBtn, display_width * 1 / 3 - 20, 38);
@@ -96,7 +107,7 @@ void AppChatGPT::draw_ui() {
   lv_obj_t *btnLabel = lv_label_create(sendBtn);
   lv_label_set_text(btnLabel, "Send");
   lv_obj_center(btnLabel);
-  lv_obj_add_event_cb(sendBtn, tg_event_handler_thunk, LV_EVENT_CLICKED, NULL);
+  lv_obj_add_event_cb(sendBtn, fm_event_handler_thunk, LV_EVENT_CLICKED, NULL);
 
   msgList = lv_list_create(ui_AppPanel);
   lv_obj_set_size(msgList, display_width, 160);
@@ -105,7 +116,8 @@ void AppChatGPT::draw_ui() {
   lv_obj_set_style_border_width(msgList, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 }
 
-void AppChatGPT::add_msg(bool isMine, String msg) {
+void AppChatGPT::add_msg(bool isMine, String msg)
+{
   lv_obj_t *text = lv_list_add_text(msgList, msg.c_str());
   lv_obj_add_style(text, &msgStyle, 0);
   lv_label_set_long_mode(text, LV_LABEL_LONG_WRAP);
@@ -113,11 +125,13 @@ void AppChatGPT::add_msg(bool isMine, String msg) {
   lv_obj_scroll_to_y(msgList, lv_obj_get_scroll_y(msgList) + lv_obj_get_height(msgList), LV_ANIM_ON);
 }
 
-void AppChatGPT::clean_input_field() {
+void AppChatGPT::clean_input_field()
+{
   lv_textarea_set_text(textField, "");
 }
 
-void AppChatGPT::close_app() {
+void AppChatGPT::close_app()
+{
   _display->goback_main_screen();
   lv_obj_del(_bodyScreen);
   delete this;

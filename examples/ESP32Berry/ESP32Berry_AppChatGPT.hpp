@@ -11,7 +11,8 @@
 #include <ArduinoJson.h>
 #include <ChatGPT.hpp>
 
-class AppChatGPT : public AppBase {
+class AppChatGPT : public AppBase
+{
 private:
   lv_style_t msgStyle;
   lv_obj_t *textField;
@@ -22,11 +23,11 @@ private:
   void draw_ui();
 
 public:
-  ChatGPT<WiFiClientSecure> * chat_gpt;
+  ChatGPT<WiFiClientSecure> *chat_gpt;
   AppChatGPT(Display *display, System *system, Network *network, const char *title);
   ~AppChatGPT();
   void add_msg(bool isMine, String msg);
-  void tg_event_handler(lv_event_t *e);
+  void fm_event_handler(lv_event_t *e);
   void clean_input_field();
   void close_app();
 };

@@ -1,7 +1,3 @@
-```eval_rst
-.. include:: /header.rst
-:github_url: |github_link_base|/porting/display.md
-```
 # Display interface
 
 To register a display for LVGL, a `lv_disp_draw_buf_t` and a `lv_disp_drv_t` variable have to be initialized.
@@ -207,6 +203,8 @@ The default rotation of your display when it is initialized can be set using the
 (Note for users upgrading from 7.10.0 and older: these new rotation enum values match up with the old 0/1 system for rotating 90 degrees, so legacy code should continue to work as expected. Software rotation is also disabled by default for compatibility.)
 
 Display rotation can also be changed at runtime using the `lv_disp_set_rotation(disp, rot)` API.
+
+Note that when using software rotation, you cannot use neither `direct_mode` nor `full_refresh` in the driver. When using either of these, you will have to rotate the pixels yourself e.g. in the `flush_cb`.
 
 Support for software rotation is a new feature, so there may be some glitches/bugs depending on your configuration. If you encounter a problem please open an issue on [GitHub](https://github.com/lvgl/lvgl/issues).
 
